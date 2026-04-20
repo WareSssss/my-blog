@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sass</title>
+    <meta name="description" content="sass 学习笔记：变量、嵌套、Mixin、继承等常用语法与工程化实践。" />
+    <link rel="canonical" href="http://localhost:5173/blog/sass-notes" />
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" />
+    <style>
+      body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:#f8fafc;color:#0f172a}
+      a{color:#2563eb;text-decoration:underline;text-underline-offset:2px}
+      .container{max-width:1100px;margin:0 auto;padding:24px}
+      .nav{display:flex;gap:16px;align-items:center;padding:12px 16px;border:1px solid #e2e8f0;border-radius:14px;background:#fff}
+      .nav a{text-decoration:none;color:#334155;font-size:14px}
+      .nav a:hover{color:#0f172a}
+      .grid{display:grid;grid-template-columns:1fr 260px;gap:24px;margin-top:18px}
+      .card{border:1px solid #e2e8f0;border-radius:16px;background:#fff;padding:20px}
+      .title{font-size:28px;font-weight:700;letter-spacing:-.02em;margin:10px 0 0}
+      .desc{margin:10px 0 0;color:#475569;font-size:14px;line-height:1.75}
+      .toc-title{font-size:12px;font-weight:700;color:#0f172a;margin-bottom:10px}
+      .toc-item{display:block;color:#475569;text-decoration:none;font-size:14px;line-height:1.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .toc-item:hover{color:#0f172a}
+      .toc-empty{color:#94a3b8;font-size:14px}
+      .content{line-height:1.75;font-size:15px}
+      .content h2{font-size:20px;font-weight:700;margin:24px 0 10px}
+      .content h3{font-size:16px;font-weight:700;margin:18px 0 8px}
+      .content p{margin:10px 0;color:#334155}
+      .content pre{margin:12px 0;border-radius:12px;padding:14px;overflow:auto;background:#0f172a}
+      .content code:not(pre code){border-radius:6px;padding:2px 6px;background:#f1f5f9;color:#0f172a}
+      @media (max-width: 960px){.grid{grid-template-columns:1fr}.toc{display:none}}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav">
+        <strong style="font-size:14px">扶桑</strong>
+        <a href="/">首页</a>
+        <a href="/blog">博客</a>
+        <a href="/tools">开发工具</a>
+        <a href="/ai">AI聊天</a>
+      </div>
+      <div class="grid">
+        <main class="card">
+          <h1 class="title">sass</h1>
+          <p class="desc">sass 学习笔记：变量、嵌套、Mixin、继承等常用语法与工程化实践。</p>
+          <div class="content"><h2 id="变量与嵌套"><a href="#变量与嵌套">变量与嵌套</a></h2>
+<p>Sass 支持变量与嵌套，可以显著提升样式的可维护性。</p>
+<h3 id="变量"><a href="#变量">变量</a></h3>
+<pre><code class="hljs language-scss"><span class="hljs-variable">$primary</span>: <span class="hljs-number">#2563eb</span>;
+
+<span class="hljs-selector-class">.button</span> {
+  <span class="hljs-attribute">background</span>: <span class="hljs-variable">$primary</span>;
+}
+</code></pre>
+<h3 id="嵌套"><a href="#嵌套">嵌套</a></h3>
+<pre><code class="hljs language-scss"><span class="hljs-selector-class">.card</span> {
+  <span class="hljs-selector-class">.title</span> {
+    <span class="hljs-attribute">font-weight</span>: <span class="hljs-number">600</span>;
+  }
+}
+</code></pre></div>
+        </main>
+        <aside class="card toc">
+          <div class="toc-title">目录</div>
+          <a class="toc-item" style="padding-left:0" href="#变量与嵌套">变量与嵌套</a><a class="toc-item" style="padding-left:12px" href="#变量">变量</a><a class="toc-item" style="padding-left:12px" href="#嵌套">嵌套</a>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

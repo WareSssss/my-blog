@@ -1,0 +1,267 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PostStatus {
+  draft
+  published
+}
+
+enum ToolStatus {
+  online
+  coming_soon
+}
+
+enum ChatRole {
+  user
+  assistant
+  system
+}
+
+enum KbDocumentStatus {
+  active
+  disabled
+}
+
+enum KbSourceType {
+  post
+  markdown
+  pdf
+}
+
+model SiteSetting {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("site_settings")
+}
+
+model Category {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  sort      Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  posts Post[]
+
+  @@map("categories")
+  @@index([sort])
+}
+
+model Tag {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  posts PostTag[]
+
+  @@map("tags")
+}
+
+model Post {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug        String     @unique
+  title       String
+  excerpt     String?
+  coverUrl    String?    @map("cover_url")
+  readTimeMinutes Int?   @map("read_time_minutes")
+  contentMarkdown String? @db.Text @map("content_markdown")
+  categoryId  String?    @db.Uuid @map("category_id")
+  status      PostStatus @default(draft)
+  sourceType  String     @default("markdown_file") @map("source_type")
+  sourcePath  String?    @map("source_path")
+  contentHash String?    @map("content_hash")
+  publishedAt DateTime?  @db.Timestamptz(6) @map("published_at")
+  createdAt   DateTime   @default(now()) @db.Timestamptz(6) @map("created_at")
+  updatedAt   DateTime   @updatedAt @db.Timestamptz(6) @map("updated_at")
+
+  category Category?  @relation(fields: [categoryId], references: [id])
+  tags     PostTag[]
+  stats    PostStats?
+
+  @@map("posts")
+  @@index([categoryId, publishedAt(sort: Desc)])
+  @@index([status, publishedAt(sort: Desc)])
+}
+
+model PostTag {
+  postId    String   @db.Uuid @map("post_id")
+  tagId     String   @db.Uuid @map("tag_id")
+  createdAt DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@map("post_tags")
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+model PostStats {
+  postId    String   @id @db.Uuid @map("post_id")
+  views     BigInt   @default(0)
+  likes     BigInt   @default(0)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6) @map("updated_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_stats")
+}
+
+model ToolCategory {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  sort      Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+  updatedAt DateTime @updatedAt @db.Timestamptz(6) @map("updated_at")
+
+  tools Tool[]
+
+  @@map("tool_categories")
+  @@index([sort])
+}
+
+model Tool {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  description String?
+  icon        String?
+  categoryId  String?    @db.Uuid @map("category_id")
+  status      ToolStatus @default(coming_soon)
+  routePath   String?    @map("route_path")
+  externalUrl String?    @map("external_url")
+  tags        String[]   @default([])
+  sort        Int        @default(0)
+  createdAt   DateTime   @default(now()) @db.Timestamptz(6) @map("created_at")
+  updatedAt   DateTime   @updatedAt @db.Timestamptz(6) @map("updated_at")
+
+  category ToolCategory? @relation(fields: [categoryId], references: [id])
+
+  @@map("tools")
+  @@index([categoryId, sort])
+  @@index([status])
+}
+
+model Admin {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("admin")
+  lastLoginAt  DateTime? @db.Timestamptz(6) @map("last_login_at")
+  createdAt    DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+  updatedAt    DateTime @updatedAt @db.Timestamptz(6) @map("updated_at")
+
+  refreshTokens AdminRefreshToken[]
+  auditLogs     AuditLog[]
+
+  @@map("admins")
+}
+
+model AdminRefreshToken {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  adminId   String    @db.Uuid @map("admin_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @db.Timestamptz(6) @map("expires_at")
+  revokedAt DateTime? @db.Timestamptz(6) @map("revoked_at")
+  createdAt DateTime  @default(now()) @db.Timestamptz(6) @map("created_at")
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@map("admin_refresh_tokens")
+  @@index([adminId])
+}
+
+model AuditLog {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  adminId    String?  @db.Uuid @map("admin_id")
+  action     String
+  targetType String?  @map("target_type")
+  targetId   String?  @db.Uuid @map("target_id")
+  ip         String?
+  userAgent  String?  @map("user_agent")
+  meta       Json?
+  createdAt  DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+
+  admin Admin? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+  @@index([adminId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+}
+
+model ChatSession {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clientId  String?  @map("client_id")
+  model     String
+  title     String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+  updatedAt DateTime @updatedAt @db.Timestamptz(6) @map("updated_at")
+
+  messages ChatMessage[]
+
+  @@map("chat_sessions")
+  @@index([clientId, updatedAt(sort: Desc)])
+}
+
+model ChatMessage {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId  String   @db.Uuid @map("session_id")
+  role       ChatRole
+  content    String
+  citations  Json?
+  tokenUsage Json?    @map("token_usage")
+  createdAt  DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+  @@index([sessionId, createdAt])
+}
+
+model KbDocument {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sourceType  KbSourceType     @map("source_type")
+  sourceId    String?          @db.Uuid @map("source_id")
+  title       String
+  url         String?
+  status      KbDocumentStatus @default(active)
+  contentHash String?          @map("content_hash")
+  createdAt   DateTime         @default(now()) @db.Timestamptz(6) @map("created_at")
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(6) @map("updated_at")
+
+  chunks KbChunk[]
+
+  @@map("kb_documents")
+  @@index([sourceType, sourceId])
+  @@index([status])
+}
+
+model KbChunk {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  documentId  String   @db.Uuid @map("document_id")
+  chunkIndex  Int      @map("chunk_index")
+  content     String
+  tokenCount  Int      @default(0) @map("token_count")
+  vectorStore String   @map("vector_store")
+  vectorId    String   @map("vector_id")
+  meta        Json?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+
+  document KbDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("kb_chunks")
+  @@index([documentId, chunkIndex])
+  @@index([vectorStore, vectorId])
+}

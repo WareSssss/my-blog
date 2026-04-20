@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pm2学习文档</title>
+    <meta name="description" content="pm2 常用命令、进程管理流程、配置参数与部署注意事项整理。" />
+    <link rel="canonical" href="http://localhost:5173/blog/pm2-notes" />
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" />
+    <style>
+      body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:#f8fafc;color:#0f172a}
+      a{color:#2563eb;text-decoration:underline;text-underline-offset:2px}
+      .container{max-width:1100px;margin:0 auto;padding:24px}
+      .nav{display:flex;gap:16px;align-items:center;padding:12px 16px;border:1px solid #e2e8f0;border-radius:14px;background:#fff}
+      .nav a{text-decoration:none;color:#334155;font-size:14px}
+      .nav a:hover{color:#0f172a}
+      .grid{display:grid;grid-template-columns:1fr 260px;gap:24px;margin-top:18px}
+      .card{border:1px solid #e2e8f0;border-radius:16px;background:#fff;padding:20px}
+      .title{font-size:28px;font-weight:700;letter-spacing:-.02em;margin:10px 0 0}
+      .desc{margin:10px 0 0;color:#475569;font-size:14px;line-height:1.75}
+      .toc-title{font-size:12px;font-weight:700;color:#0f172a;margin-bottom:10px}
+      .toc-item{display:block;color:#475569;text-decoration:none;font-size:14px;line-height:1.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .toc-item:hover{color:#0f172a}
+      .toc-empty{color:#94a3b8;font-size:14px}
+      .content{line-height:1.75;font-size:15px}
+      .content h2{font-size:20px;font-weight:700;margin:24px 0 10px}
+      .content h3{font-size:16px;font-weight:700;margin:18px 0 8px}
+      .content p{margin:10px 0;color:#334155}
+      .content pre{margin:12px 0;border-radius:12px;padding:14px;overflow:auto;background:#0f172a}
+      .content code:not(pre code){border-radius:6px;padding:2px 6px;background:#f1f5f9;color:#0f172a}
+      @media (max-width: 960px){.grid{grid-template-columns:1fr}.toc{display:none}}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav">
+        <strong style="font-size:14px">扶桑</strong>
+        <a href="/">首页</a>
+        <a href="/blog">博客</a>
+        <a href="/tools">开发工具</a>
+        <a href="/ai">AI聊天</a>
+      </div>
+      <div class="grid">
+        <main class="card">
+          <h1 class="title">pm2学习文档</h1>
+          <p class="desc">pm2 常用命令、进程管理流程、配置参数与部署注意事项整理。</p>
+          <div class="content"><h2 id="安装"><a href="#安装">安装</a></h2>
+<pre><code class="hljs language-bash">npm i -g pm2
+</code></pre>
+<h2 id="常用命令"><a href="#常用命令">常用命令</a></h2>
+<pre><code class="hljs language-bash">pm2 start app.js --name my-app
+pm2 <span class="hljs-built_in">ls</span>
+pm2 logs my-app
+pm2 restart my-app
+</code></pre>
+<h2 id="部署建议"><a href="#部署建议">部署建议</a></h2>
+<ul>
+<li>配置开机自启</li>
+<li>记录日志与监控</li>
+</ul></div>
+        </main>
+        <aside class="card toc">
+          <div class="toc-title">目录</div>
+          <a class="toc-item" style="padding-left:0" href="#安装">安装</a><a class="toc-item" style="padding-left:0" href="#常用命令">常用命令</a><a class="toc-item" style="padding-left:0" href="#部署建议">部署建议</a>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

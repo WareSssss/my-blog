@@ -1,0 +1,76 @@
+.markdown {
+  color: rgb(15 23 42);
+  line-height: 1.75;
+  font-size: 15px;
+}
+
+.markdown h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 24px 0 10px;
+}
+
+.markdown h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 18px 0 8px;
+}
+
+.markdown p {
+  margin: 10px 0;
+  color: rgb(51 65 85);
+}
+
+.markdown a {
+  color: rgb(37 99 235);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown ul {
+  padding-left: 18px;
+  margin: 10px 0;
+  list-style: disc;
+  color: rgb(51 65 85);
+}
+
+.markdown ol {
+  padding-left: 18px;
+  margin: 10px 0;
+  list-style: decimal;
+  color: rgb(51 65 85);
+}
+
+.markdown pre {
+  margin: 12px 0;
+  border-radius: 12px;
+  padding: 14px;
+  overflow: auto;
+  background: rgb(15 23 42);
+}
+
+.markdown pre code {
+  font-size: 13px;
+}
+
+.markdown code:not(pre code) {
+  border-radius: 6px;
+  padding: 2px 6px;
+  background: rgb(241 245 249);
+  color: rgb(15 23 42);
+}
+
+.dark .markdown {
+  color: rgb(226 232 240);
+}
+
+.dark .markdown p,
+.dark .markdown ul,
+.dark .markdown ol {
+  color: rgb(203 213 225);
+}
+
+.dark .markdown code:not(pre code) {
+  background: rgb(30 41 59);
+  color: rgb(226 232 240);
+}

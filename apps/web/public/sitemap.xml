@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>http://localhost:5173/</loc></url>
+  <url><loc>http://localhost:5173/blog</loc></url>
+  <url><loc>http://localhost:5173/tools</loc></url>
+  <url><loc>http://localhost:5173/ai</loc></url>
+  <url><loc>http://localhost:5173/blog/ai-ui-design-system</loc></url>
+  <url><loc>http://localhost:5173/blog/llm-memory</loc></url>
+  <url><loc>http://localhost:5173/blog/pm2-notes</loc></url>
+  <url><loc>http://localhost:5173/blog/sass-notes</loc></url>
+</urlset>

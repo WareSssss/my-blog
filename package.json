@@ -1,0 +1,19 @@
+{
+  "name": "blog-monorepo",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev:web": "pnpm -C apps/web dev",
+    "dev:api": "pnpm -C apps/api start:dev",
+    "dev": "pnpm -C apps/web dev",
+    "build:web": "pnpm -C apps/web build",
+    "build:api": "pnpm -C apps/api build",
+    "build": "pnpm build:web && pnpm build:api",
+    "lint:web": "pnpm -C apps/web lint",
+    "lint:api": "pnpm -C apps/api lint",
+    "lint": "pnpm lint:web && pnpm lint:api",
+    "typecheck:web": "pnpm -C apps/web typecheck",
+    "typecheck:api": "pnpm -C apps/api typecheck",
+    "typecheck": "pnpm typecheck:web && pnpm typecheck:api"
+  }
+}

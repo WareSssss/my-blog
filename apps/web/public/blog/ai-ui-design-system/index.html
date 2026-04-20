@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>这个 5 万 Star 的项目，让 AI 写出来的 UI 终于不丑了</title>
+    <meta name="description" content="66 个知名品牌设计系统的 Markdown 版本，复制到项目里 AI 直接生成对应风格的 UI。5 万 Star，MIT 协议，AI 时代的前端效果神器…" />
+    <link rel="canonical" href="http://localhost:5173/blog/ai-ui-design-system" />
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" />
+    <style>
+      body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:#f8fafc;color:#0f172a}
+      a{color:#2563eb;text-decoration:underline;text-underline-offset:2px}
+      .container{max-width:1100px;margin:0 auto;padding:24px}
+      .nav{display:flex;gap:16px;align-items:center;padding:12px 16px;border:1px solid #e2e8f0;border-radius:14px;background:#fff}
+      .nav a{text-decoration:none;color:#334155;font-size:14px}
+      .nav a:hover{color:#0f172a}
+      .grid{display:grid;grid-template-columns:1fr 260px;gap:24px;margin-top:18px}
+      .card{border:1px solid #e2e8f0;border-radius:16px;background:#fff;padding:20px}
+      .title{font-size:28px;font-weight:700;letter-spacing:-.02em;margin:10px 0 0}
+      .desc{margin:10px 0 0;color:#475569;font-size:14px;line-height:1.75}
+      .toc-title{font-size:12px;font-weight:700;color:#0f172a;margin-bottom:10px}
+      .toc-item{display:block;color:#475569;text-decoration:none;font-size:14px;line-height:1.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .toc-item:hover{color:#0f172a}
+      .toc-empty{color:#94a3b8;font-size:14px}
+      .content{line-height:1.75;font-size:15px}
+      .content h2{font-size:20px;font-weight:700;margin:24px 0 10px}
+      .content h3{font-size:16px;font-weight:700;margin:18px 0 8px}
+      .content p{margin:10px 0;color:#334155}
+      .content pre{margin:12px 0;border-radius:12px;padding:14px;overflow:auto;background:#0f172a}
+      .content code:not(pre code){border-radius:6px;padding:2px 6px;background:#f1f5f9;color:#0f172a}
+      @media (max-width: 960px){.grid{grid-template-columns:1fr}.toc{display:none}}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav">
+        <strong style="font-size:14px">扶桑</strong>
+        <a href="/">首页</a>
+        <a href="/blog">博客</a>
+        <a href="/tools">开发工具</a>
+        <a href="/ai">AI聊天</a>
+      </div>
+      <div class="grid">
+        <main class="card">
+          <h1 class="title">这个 5 万 Star 的项目，让 AI 写出来的 UI 终于不丑了</h1>
+          <p class="desc">66 个知名品牌设计系统的 Markdown 版本，复制到项目里 AI 直接生成对应风格的 UI。5 万 Star，MIT 协议，AI 时代的前端效果神器…</p>
+          <div class="content"><h2 id="背景"><a href="#背景">背景</a></h2>
+<p>很多时候 AI 能写出可用的组件，但“好看”不容易。</p>
+<h2 id="解决方案"><a href="#解决方案">解决方案</a></h2>
+<p>这里推荐一种实践：把成熟设计系统的规范喂给 AI，让生成的 UI 更贴近品牌。</p>
+<h3 id="你可以怎么做"><a href="#你可以怎么做">你可以怎么做</a></h3>
+<ol>
+<li>选一个设计系统</li>
+<li>拿到对应的规范文档</li>
+<li>让 AI 按规范生成组件</li>
+</ol>
+<h2 id="示例代码"><a href="#示例代码">示例代码</a></h2>
+<pre><code class="hljs language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">ButtonProps</span> = {
+  <span class="hljs-attr">variant</span>?: <span class="hljs-string">'primary'</span> | <span class="hljs-string">'secondary'</span>;
+  <span class="hljs-attr">disabled</span>?: <span class="hljs-built_in">boolean</span>;
+};
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">Button</span>(<span class="hljs-params"><span class="hljs-attr">props</span>: <span class="hljs-title class_">ButtonProps</span></span>) {
+  <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&#x3C;<span class="hljs-name">button</span> <span class="hljs-attr">disabled</span>=<span class="hljs-string">{props.disabled}</span>></span>Button<span class="hljs-tag">&#x3C;/<span class="hljs-name">button</span>></span></span>;
+}
+</code></pre></div>
+        </main>
+        <aside class="card toc">
+          <div class="toc-title">目录</div>
+          <a class="toc-item" style="padding-left:0" href="#背景">背景</a><a class="toc-item" style="padding-left:0" href="#解决方案">解决方案</a><a class="toc-item" style="padding-left:12px" href="#你可以怎么做">你可以怎么做</a><a class="toc-item" style="padding-left:0" href="#示例代码">示例代码</a>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>
