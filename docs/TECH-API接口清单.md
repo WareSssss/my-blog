@@ -109,7 +109,7 @@ Query：
 Body：
 
 - `clientId`：前端生成的匿名 ID（localStorage）
-- `model`：模型标识（如 `glm-4-flash`）
+- `model`：模型标识（如 `qwen-plus`）
 
 返回：
 

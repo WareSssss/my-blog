@@ -61,8 +61,9 @@ async function main() {
         status: "在线",
         quickPrompts: ["介绍一下你自己", "你有哪些技能栈", "推荐最火的博客"],
         models: [
-          { id: "glm-4-flash", label: "GLM-4-Flash" },
-          { id: "gpt-4o-mini", label: "GPT-4o mini" }
+          { id: "qwen-plus", label: "通义千问-Plus" },
+          { id: "qwen-max", label: "通义千问-Max" },
+          { id: "qwen-turbo", label: "通义千问-Turbo" }
         ]
       }
     }
