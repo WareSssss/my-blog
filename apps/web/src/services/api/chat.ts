@@ -45,9 +45,18 @@ export function sendChatMessage(sessionId: string, content: string) {
   }).then((res) => res.json() as Promise<{ content: string; usage?: any }>);
 }
 
-export async function* sendChatMessageStream(sessionId: string, content: string) {
+export function deleteChatSession(sessionId: string) {
+  return fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/public/chat/sessions/${sessionId}`, {
+    method: 'DELETE',
+  }).then((res) => {
+    if (!res.ok) throw new Error('删除会话失败');
+    return res.json();
+  });
+}
+
+export async function* sendChatMessageStream(sessionId: string, content: string, signal?: AbortSignal) {
   const url = `${import.meta.env.VITE_API_BASE_URL || ''}/api/public/chat/sessions/${sessionId}/stream?content=${encodeURIComponent(content)}`;
-  const response = await fetch(url);
+  const response = await fetch(url, { signal });
   
   if (!response.ok) {
     throw new Error('流式请求失败');

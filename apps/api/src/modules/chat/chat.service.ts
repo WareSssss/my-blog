@@ -80,6 +80,12 @@ export class ChatService implements OnModuleInit {
     });
   }
 
+  async deleteSession(sessionId: string) {
+    return this.prisma.chatSession.delete({
+      where: { id: sessionId },
+    });
+  }
+
   async callAI(sessionId: string, userMessage: string) {
     if (!this.openai) {
       throw new Error('AI 服务未配置');
@@ -102,10 +108,15 @@ export class ChatService implements OnModuleInit {
     // 1. 尝试 RAG 检索
     const ragResults = await this.kbService.search(userMessage);
     let systemPrompt = '你是一个专业的 AI 助手，负责回答用户的问题。';
-    
+
     if (ragResults.length > 0) {
-      const context = ragResults.map((r) => `[${r.title}](${r.url}): ${r.content}`).join('\n\n');
-      systemPrompt += `\n\n请参考以下知识库内容回答用户问题：\n${context}\n\n如果知识库内容不足以回答问题，请如实告知。回答时请尽量引用来源。`;
+      const context = ragResults
+        .map((r) => {
+          const slug = r.url.split('/').pop() || '';
+          return `[文章标题: ${r.title}, slug: ${slug}]: ${r.content}`;
+        })
+        .join('\n\n');
+      systemPrompt += `\n\n请参考以下知识库内容回答用户问题：\n${context}\n\n回答要求：\n1. 如果知识库内容足以回答，请优先使用知识库信息。\n2. 在回答结尾或提及相关内容处，请务必使用 [source: slug] 格式引用来源（例如 [source: react-hooks]）。\n3. 如果知识库内容不足以回答，请如实告知。`;
     }
 
     // 2. 构造对话历史
@@ -156,10 +167,15 @@ export class ChatService implements OnModuleInit {
     // 1. 尝试 RAG 检索
     const ragResults = await this.kbService.search(userMessage);
     let systemPrompt = '你是一个专业的 AI 助手，负责回答用户的问题。';
-    
+
     if (ragResults.length > 0) {
-      const context = ragResults.map((r) => `[${r.title}](${r.url}): ${r.content}`).join('\n\n');
-      systemPrompt += `\n\n请参考以下知识库内容回答用户问题：\n${context}\n\n如果知识库内容不足以回答问题，请如实告知。回答时请尽量引用来源。`;
+      const context = ragResults
+        .map((r) => {
+          const slug = r.url.split('/').pop() || '';
+          return `[文章标题: ${r.title}, slug: ${slug}]: ${r.content}`;
+        })
+        .join('\n\n');
+      systemPrompt += `\n\n请参考以下知识库内容回答用户问题：\n${context}\n\n回答要求：\n1. 如果知识库内容足以回答，请优先使用知识库信息。\n2. 在回答结尾或提及相关内容处，请务必使用 [source: slug] 格式引用来源（例如 [source: react-hooks]）。\n3. 如果知识库内容不足以回答，请如实告知。`;
     }
 
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [

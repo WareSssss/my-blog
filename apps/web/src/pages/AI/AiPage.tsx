@@ -1,12 +1,14 @@
 import heroImg from "../../assets/hero.png";
-import { Send, User, Bot, Loader2, Plus, MessageSquare, Copy, Check } from "lucide-react";
+import { Send, User, Bot, Loader2, Plus, MessageSquare, Copy, Check, Trash2, Square, ExternalLink } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { getAiConfig, type PublicAiConfig } from "../../services/api/public";
 import {
   createChatSession,
   getChatSessions,
   getChatMessages,
   sendChatMessageStream,
+  deleteChatSession,
   type ChatSession,
   type ChatMessage,
 } from "../../services/api/chat";
@@ -16,6 +18,18 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github.css";
+
+function SourceCard({ slug }: { slug: string }) {
+  return (
+    <Link
+      to={`/blog/${slug}`}
+      className="inline-flex items-center gap-1.5 px-2 py-1 my-1 mr-2 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm group"
+    >
+      <ExternalLink className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+      <span>参考文章: {slug}</span>
+    </Link>
+  );
+}
 
 function CodeBlock({ children, ...props }: any) {
   const [copied, setCopied] = useState(false);
@@ -68,6 +82,7 @@ export function AiPage() {
   const [text, setText] = useState("");
   const [model, setModel] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // 配置与模型列表
   const models = useMemo(
@@ -124,6 +139,10 @@ export function AiPage() {
   const handleSend = async (content: string = text) => {
     if (!content.trim() || loading) return;
 
+    // 创建新的中止控制器
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     let sessionId = currentSessionId;
     setLoading(true);
 
@@ -162,7 +181,7 @@ export function AiPage() {
       };
       setMessages((prev) => [...prev, assistantMsg]);
 
-      const stream = sendChatMessageStream(sessionId, content);
+      const stream = sendChatMessageStream(sessionId, content, controller.signal);
       for await (const chunk of stream) {
         setMessages((prev) =>
           prev.map((msg) =>
@@ -170,10 +189,37 @@ export function AiPage() {
           )
         );
       }
-    } catch (error) {
-      console.error("发送失败:", error);
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        console.log("生成已中止");
+      } else {
+        console.error("发送失败:", error);
+      }
     } finally {
       setLoading(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const handleStop = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  };
+
+  const handleDeleteSession = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!confirm("确定要删除此会话吗？")) return;
+
+    try {
+      await deleteChatSession(id);
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+      if (currentSessionId === id) {
+        setCurrentSessionId(null);
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error("删除失败:", error);
     }
   };
 
@@ -214,14 +260,18 @@ export function AiPage() {
                 key={s.id}
                 onClick={() => setCurrentSessionId(s.id)}
                 className={clsx(
-                  "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-sm transition-all",
+                  "group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-sm transition-all",
                   currentSessionId === s.id
                     ? "bg-blue-50 text-blue-700 font-medium shadow-sm"
                     : "text-slate-600 hover:bg-slate-50"
                 )}
               >
                 <MessageSquare className="h-4 w-4 shrink-0 opacity-60" />
-                <span className="truncate">{s.title || "新对话"}</span>
+                <span className="flex-1 truncate">{s.title || "新对话"}</span>
+                <Trash2
+                  onClick={(e) => handleDeleteSession(e, s.id)}
+                  className="h-3.5 w-3.5 shrink-0 opacity-0 group-hover:opacity-40 hover:!opacity-100 hover:text-red-500 transition-all"
+                />
               </button>
             ))}
           </div>
@@ -283,8 +333,27 @@ export function AiPage() {
                             pre: CodeBlock
                           }}
                         >
-                          {m.content}
+                          {m.content.replace(/\[source:\s*([^\]]+)\]/g, '')}
                         </ReactMarkdown>
+                        
+                        {/* 渲染来源卡片 */}
+                        {(() => {
+                          const sources = Array.from(m.content.matchAll(/\[source:\s*([^\]]+)\]/g)).map(match => match[1].trim());
+                          const uniqueSources = Array.from(new Set(sources));
+                          if (uniqueSources.length > 0) {
+                            return (
+                              <div className="mt-4 pt-3 border-t border-slate-100">
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">参考来源</div>
+                                <div className="flex flex-wrap">
+                                  {uniqueSources.map(slug => (
+                                    <SourceCard key={slug} slug={slug} />
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
                     )}
                   </div>
@@ -318,21 +387,32 @@ export function AiPage() {
 
               <div className="relative flex-1">
                 <input
-                  className="w-full h-11 rounded-xl border border-slate-200 bg-white pl-4 pr-12 text-sm text-slate-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                  placeholder="有什么可以帮到您的？"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => handleSend()}
-                  disabled={loading || !text.trim()}
-                  className="absolute right-1.5 top-1.5 h-8 w-8 inline-flex items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Send className="h-4 w-4" />
-                </button>
+                    className="w-full h-11 rounded-xl border border-slate-200 bg-white pl-4 pr-12 text-sm text-slate-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    placeholder="有什么可以帮到您的？"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                    disabled={loading}
+                  />
+                  {loading ? (
+                    <button
+                      type="button"
+                      onClick={handleStop}
+                      className="absolute right-1.5 top-1.5 h-8 w-8 inline-flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                      title="停止生成"
+                    >
+                      <Square className="h-4 w-4 fill-current" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleSend()}
+                      disabled={!text.trim()}
+                      className="absolute right-1.5 top-1.5 h-8 w-8 inline-flex items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Send className="h-4 w-4" />
+                    </button>
+                  )}
               </div>
             </div>
           </div>
