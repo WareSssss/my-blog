@@ -13,8 +13,8 @@ async function bootstrap() {
       // 允许生产环境的前端域名
       /\.vercel\.app$/, 
       /\.railway\.app$/,
-      // 如果有自定义域名，请在此添加，例如：
-      // 'https://www.yourdomain.com'
+      'https://www.waresblog.xyz',
+      'https://waresblog.xyz',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
