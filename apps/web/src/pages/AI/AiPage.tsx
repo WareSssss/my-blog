@@ -17,13 +17,13 @@ import clsx from "clsx";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github.css";
+import "highlight.js/styles/github-dark.css";
 
 function SourceCard({ slug }: { slug: string }) {
   return (
     <Link
       to={`/blog/${slug}`}
-      className="inline-flex items-center gap-1.5 px-2 py-1 my-1 mr-2 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm group"
+      className="inline-flex items-center gap-1.5 px-2 py-1 my-1 mr-2 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm group dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-blue-500 dark:hover:text-blue-400"
     >
       <ExternalLink className="h-3 w-3 opacity-50 group-hover:opacity-100" />
       <span>参考文章: {slug}</span>
@@ -246,10 +246,10 @@ export function AiPage() {
 
       <div className="flex flex-1 gap-4 min-h-0">
         {/* 侧边栏：历史会话 */}
-        <div className="hidden md:flex flex-col w-64 rounded-2xl border border-slate-200 bg-white p-3 shadow-soft">
+        <div className="hidden md:flex flex-col w-64 rounded-2xl border border-slate-200 bg-white p-3 shadow-soft dark:border-slate-800 dark:bg-slate-900">
           <button
             onClick={startNewChat}
-            className="flex items-center justify-center gap-2 w-full py-2 mb-4 rounded-xl border-2 border-dashed border-slate-200 text-sm font-medium text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-2 mb-4 rounded-xl border-2 border-dashed border-slate-200 text-sm font-medium text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-colors dark:border-slate-800 dark:text-slate-400 dark:hover:border-blue-500 dark:hover:text-blue-400"
           >
             <Plus className="h-4 w-4" />
             开启新对话
@@ -262,8 +262,8 @@ export function AiPage() {
                 className={clsx(
                   "group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left text-sm transition-all",
                   currentSessionId === s.id
-                    ? "bg-blue-50 text-blue-700 font-medium shadow-sm"
-                    : "text-slate-600 hover:bg-slate-50"
+                    ? "bg-blue-50 text-blue-700 font-medium shadow-sm dark:bg-blue-900/20 dark:text-blue-400"
+                    : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50"
                 )}
               >
                 <MessageSquare className="h-4 w-4 shrink-0 opacity-60" />
@@ -278,7 +278,7 @@ export function AiPage() {
         </div>
 
         {/* 主聊天区 */}
-        <div className="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white shadow-soft overflow-hidden">
+        <div className="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white shadow-soft overflow-hidden dark:border-slate-800 dark:bg-slate-900">
           {/* 消息展示区 */}
           <div
             ref={scrollRef}
@@ -287,14 +287,14 @@ export function AiPage() {
             {messages.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center py-10">
                 <img src={heroImg} alt="avatar" className="h-16 w-16 rounded-full object-cover shadow-md" />
-                <div className="mt-4 text-lg font-semibold text-slate-900">你好，我是扶桑 AI</div>
-                <div className="mt-1 text-sm text-slate-500">你可以问我关于技术、博客或任何你想了解的问题</div>
+                <div className="mt-4 text-lg font-semibold text-slate-900 dark:text-slate-100">你好，我是扶桑 AI</div>
+                <div className="mt-1 text-sm text-slate-500 dark:text-slate-400">你可以问我关于技术、博客或任何你想了解的问题</div>
                 <div className="mt-8 flex flex-wrap justify-center gap-2 max-w-md">
                   {quickPrompts.map((p) => (
                     <button
                       key={p}
                       onClick={() => handleSend(p)}
-                      className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                      className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-blue-500 dark:hover:text-blue-400 dark:hover:bg-blue-900/20"
                     >
                       {p}
                     </button>
@@ -312,7 +312,7 @@ export function AiPage() {
                 >
                   <div className={clsx(
                     "h-9 w-9 shrink-0 rounded-full flex items-center justify-center shadow-sm",
-                    m.role === "user" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"
+                    m.role === "user" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                   )}>
                     {m.role === "user" ? <User className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
                   </div>
@@ -320,7 +320,7 @@ export function AiPage() {
                     "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
                     m.role === "user" 
                       ? "bg-blue-600 text-white rounded-tr-none shadow-blue-200" 
-                      : "bg-slate-50 text-slate-800 rounded-tl-none border border-slate-100 markdown-content"
+                      : "bg-slate-50 text-slate-800 rounded-tl-none border border-slate-100 markdown-content dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700"
                   )}>
                     {m.role === "user" ? (
                       <div className="whitespace-pre-wrap">{m.content}</div>
@@ -342,7 +342,7 @@ export function AiPage() {
                           const uniqueSources = Array.from(new Set(sources));
                           if (uniqueSources.length > 0) {
                             return (
-                              <div className="mt-4 pt-3 border-t border-slate-100">
+                              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">参考来源</div>
                                 <div className="flex flex-wrap">
                                   {uniqueSources.map(slug => (
@@ -362,10 +362,10 @@ export function AiPage() {
             )}
             {loading && (
               <div className="flex gap-4">
-                <div className="h-9 w-9 shrink-0 rounded-full bg-slate-100 flex items-center justify-center">
+                <div className="h-9 w-9 shrink-0 rounded-full bg-slate-100 flex items-center justify-center dark:bg-slate-800">
                   <Bot className="h-5 w-5 text-slate-400" />
                 </div>
-                <div className="bg-slate-50 rounded-2xl rounded-tl-none px-4 py-3 border border-slate-100">
+                <div className="bg-slate-50 rounded-2xl rounded-tl-none px-4 py-3 border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
                   <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
                 </div>
               </div>
@@ -373,10 +373,10 @@ export function AiPage() {
           </div>
 
           {/* 输入框区域 */}
-          <div className="border-t border-slate-100 px-4 py-4 bg-slate-50/50">
+          <div className="border-t border-slate-100 px-4 py-4 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-900/50">
             <div className="flex items-center gap-3">
               <select
-                className="hidden sm:block h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm focus:border-blue-500 outline-none"
+                className="hidden sm:block h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm focus:border-blue-500 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                 value={selectedModel}
                 onChange={(e) => setModel(e.target.value)}
               >
@@ -387,7 +387,7 @@ export function AiPage() {
 
               <div className="relative flex-1">
                 <input
-                    className="w-full h-11 rounded-xl border border-slate-200 bg-white pl-4 pr-12 text-sm text-slate-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                    className="w-full h-11 rounded-xl border border-slate-200 bg-white pl-4 pr-12 text-sm text-slate-700 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:ring-blue-900/30"
                     placeholder="有什么可以帮到您的？"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
@@ -398,7 +398,7 @@ export function AiPage() {
                     <button
                       type="button"
                       onClick={handleStop}
-                      className="absolute right-1.5 top-1.5 h-8 w-8 inline-flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                      className="absolute right-1.5 top-1.5 h-8 w-8 inline-flex items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
                       title="停止生成"
                     >
                       <Square className="h-4 w-4 fill-current" />

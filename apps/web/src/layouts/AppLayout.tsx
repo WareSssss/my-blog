@@ -103,11 +103,11 @@ export function AppLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-full bg-slate-50 text-slate-900">
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+    <div className="min-h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <div className="text-sm font-semibold tracking-wide">扶桑</div>
+            <div className="text-sm font-semibold tracking-wide text-slate-900 dark:text-slate-100">扶桑</div>
             <nav className="flex items-center gap-2 text-sm">
               {navItems.map((item) => (
                 <NavLink
@@ -115,10 +115,10 @@ export function AppLayout() {
                   to={item.to}
                   className={({ isActive }) =>
                     clsx(
-                      "rounded-md px-3 py-1.5 transition",
+                      "rounded-md px-3 py-1.5 transition-colors",
                       isActive
                         ? "bg-blue-600 text-white"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                     )
                   }
                   end={item.to === "/"}
@@ -131,8 +131,8 @@ export function AppLayout() {
 
           <div className="flex items-center gap-2">
             {location.pathname === "/" ? (
-              <div className="hidden h-9 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 sm:inline-flex">
-                <MapPin className="h-4 w-4 text-slate-500" />
+              <div className="hidden h-9 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 sm:inline-flex dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                 {weatherLoading ? (
                   <span className="text-sm">定位中...</span>
                 ) : weather?.current ? (
@@ -147,7 +147,7 @@ export function AppLayout() {
 
             <button
               type="button"
-              className="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
               aria-label="通知"
             >
               <Bell className="h-4 w-4" />
@@ -158,7 +158,7 @@ export function AppLayout() {
 
             <button
               type="button"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
               aria-label="切换主题"
               onClick={() => setIsDark(!isDark)}
             >
@@ -166,7 +166,7 @@ export function AppLayout() {
             </button>
 
             <a
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
               href="https://github.com/"
               target="_blank"
               rel="noreferrer"
