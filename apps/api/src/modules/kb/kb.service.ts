@@ -64,12 +64,36 @@ export class KbService implements OnModuleInit {
         content: r.payload?.content as string,
         title: r.payload?.title as string,
         url: r.payload?.url as string,
+        slug: r.payload?.slug as string,
         score: r.score,
       }));
     } catch (e) {
       console.error('Qdrant search failed:', e.message);
       return [];
     }
+  }
+
+  /**
+   * 暴露给 Admin 模块使用的 upsert 方法
+   */
+  async upsertChunk(params: { id: string; vector: number[]; payload: any }) {
+    if (!this.qdrant) return;
+    
+    // 确保集合存在
+    const collections = await this.qdrant.getCollections();
+    if (!collections.collections.some(c => c.name === this.COLLECTION_NAME)) {
+      await this.qdrant.createCollection(this.COLLECTION_NAME, {
+        vectors: { size: 1024, distance: 'Cosine' },
+      });
+    }
+
+    return this.qdrant.upsert(this.COLLECTION_NAME, {
+      points: [{
+        id: params.id,
+        vector: params.vector,
+        payload: params.payload,
+      }],
+    });
   }
 
   // 更多 ETL 方法将在下一步脚本中实现

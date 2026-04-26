@@ -17,8 +17,19 @@ import { PrismaModule } from './prisma/prisma.module';
     ChatModule,
     ThrottlerModule.forRoot([
       {
+        name: 'short',
+        ttl: 1000,
+        limit: 3, // 每秒最多 3 次请求
+      },
+      {
+        name: 'medium',
+        ttl: 10000,
+        limit: 20, // 10 秒内最多 20 次请求
+      },
+      {
+        name: 'long',
         ttl: 60000,
-        limit: 100, // 调高限制，避免调试时频繁触发 429
+        limit: 100, // 每分钟最多 100 次请求
       },
     ]),
   ],

@@ -12,11 +12,15 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { AdminTokenGuard } from '../../common/guards/admin-token.guard';
 import { ToolStatus } from '@prisma/client';
+import { KbService } from '../kb/kb.service';
 
 @UseGuards(AdminTokenGuard)
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly kbService: KbService,
+  ) {}
 
   @Get('site-settings')
   async listSiteSettings() {
@@ -190,5 +194,75 @@ export class AdminController {
   @Delete('tool-categories/:id')
   async deleteToolCategory(@Param('id') id: string) {
     return this.prisma.toolCategory.delete({ where: { id } });
+  }
+
+  @Post('kb/rebuild')
+  async rebuildKb() {
+    try {
+      // 获取所有已发布的文章
+      const posts = await this.prisma.post.findMany({
+        where: { status: 'published' },
+      });
+
+      if (posts.length === 0) {
+        return { message: 'No published posts to index' };
+      }
+
+      // 注意：这里为了简化，我们直接在 Controller 中调用逻辑
+      // 生产环境下建议通过异步队列处理
+      let totalChunks = 0;
+      for (const post of posts) {
+        // 切片并向量化
+        const content = post.contentMarkdown;
+        if (!content) continue;
+
+        const CHUNK_SIZE = 800;
+        const CHUNK_OVERLAP = 150;
+        const chunks: string[] = [];
+        let start = 0;
+        while (start < content.length) {
+          const end = start + CHUNK_SIZE;
+          let chunk = content.substring(start, end);
+          if (end < content.length) {
+            const lastNewline = chunk.lastIndexOf('\n');
+            const lastPeriod = chunk.lastIndexOf('。');
+            const breakPoint = lastNewline > CHUNK_SIZE * 0.8 ? lastNewline : (lastPeriod > CHUNK_SIZE * 0.8 ? lastPeriod : chunk.length);
+            chunk = content.substring(start, start + breakPoint);
+            start += breakPoint - CHUNK_OVERLAP;
+          } else {
+            start = end;
+          }
+          const trimmedChunk = chunk.trim();
+          if (trimmedChunk.length > 50) chunks.push(trimmedChunk);
+        }
+
+        // 写入向量库
+        for (let i = 0; i < chunks.length; i++) {
+          const vector = await this.kbService.getEmbedding(chunks[i]);
+          if (vector) {
+            // 这里我们复用 KbService 的内部逻辑或直接调用 Qdrant
+            // 为了保持解耦，建议在 KbService 中暴露一个 upsert 方法
+            // 这里暂定调用我们将要添加的 kbService.upsertChunk
+            await (this.kbService as any).upsertChunk({
+              id: `${post.id}-${i}`,
+              vector,
+              payload: {
+                content: chunks[i],
+                title: post.title,
+                url: `/blog/${post.slug}`,
+                slug: post.slug,
+                chunkIndex: i,
+              },
+            });
+            totalChunks++;
+          }
+        }
+      }
+
+      return { message: 'KB Rebuild successful', totalPosts: posts.length, totalChunks };
+    } catch (error) {
+      console.error('KB Rebuild failed:', error);
+      throw new BadRequestException('KB Rebuild failed: ' + error.message);
+    }
   }
 }

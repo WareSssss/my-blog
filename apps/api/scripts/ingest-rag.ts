@@ -1,9 +1,7 @@
 import 'dotenv/config';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import matter from 'gray-matter';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import OpenAI from 'openai';
+import crypto from 'node:crypto';
 
 const COLLECTION_NAME = 'blog_knowledge_base';
 
@@ -26,69 +24,101 @@ async function main() {
     apiKey: process.env.QDRANT_API_KEY,
   });
 
-  // 1. 确保集合存在
-  const collections = await qdrant.getCollections();
-  const exists = collections.collections.some(c => c.name === COLLECTION_NAME);
-  
-  if (!exists) {
+  try {
+    // 1. 确保集合存在
+    const collections = await qdrant.getCollections();
+    const exists = collections.collections.some(c => c.name === COLLECTION_NAME);
+    
+    if (exists) {
+      console.log(`Deleting existing collection ${COLLECTION_NAME} to update vector dimension...`);
+      await qdrant.deleteCollection(COLLECTION_NAME);
+    }
+
     console.log(`Creating collection ${COLLECTION_NAME}...`);
     await qdrant.createCollection(COLLECTION_NAME, {
       vectors: {
-        size: 1536, // text-embedding-3-small 维度
+        size: 1024, // text-embedding-v3 维度
         distance: 'Cosine',
       },
     });
-  }
 
-  // 2. 扫描文章
-  const repoRoot = path.resolve(__dirname, '..', '..', '..');
-  const postsDir = path.join(repoRoot, 'posts');
-  const files = await fs.readdir(postsDir);
-  const mdFiles = files.filter(f => f.endsWith('.md'));
-
-  for (const file of mdFiles) {
-    const filePath = path.join(postsDir, file);
-    const raw = await fs.readFile(filePath, 'utf8');
-    const { data, content } = matter(raw);
-    const title = data.title || file;
-    const slug = data.slug || path.basename(file, '.md');
-    const url = `/blog/${slug}`;
-
-    console.log(`Processing ${title}...`);
-
-    // 简单按段落切片
-    const chunks = content
-      .split('\n\n')
-      .map(c => c.trim())
-      .filter(c => c.length > 50);
-
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      const embeddingResponse = await openai.embeddings.create({
-        model: 'text-embedding-3-small',
-        input: chunk.replace(/\n/g, ' '),
-      });
-      const vector = embeddingResponse.data[0].embedding;
-
-      await qdrant.upsert(COLLECTION_NAME, {
-        points: [
-          {
-            id: crypto.randomUUID(),
-            vector,
-            payload: {
-              content: chunk,
-              title,
-              url,
-              slug,
-              chunkIndex: i,
-            },
-          },
-        ],
-      });
+    // 2. 获取文章
+    // 从数据库获取已发布的文章
+    const { default: pkg } = await import('pg');
+    const { Pool } = pkg;
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const { rows: posts } = await pool.query('SELECT id, title, slug, content_markdown FROM posts WHERE status = \'published\'');
+    
+    if (posts.length === 0) {
+      console.warn('No published posts found in database. Please run import-posts first.');
+      await pool.end();
+      return;
     }
-  }
 
-  console.log('RAG Ingestion completed!');
+    for (const post of posts) {
+      const { title, slug, content_markdown: content } = post;
+      const url = `/blog/${slug}`;
+
+      if (!content) continue;
+      console.log(`Processing ${title}...`);
+
+      // 优化切片逻辑：固定长度切片并引入重叠度 (Overlap)
+      const CHUNK_SIZE = 800;
+      const CHUNK_OVERLAP = 150;
+      
+      const chunks: string[] = [];
+      let start = 0;
+      while (start < content.length) {
+        const end = start + CHUNK_SIZE;
+        let chunk = content.substring(start, end);
+        
+        if (end < content.length) {
+          const lastNewline = chunk.lastIndexOf('\n');
+          const lastPeriod = chunk.lastIndexOf('。');
+          const breakPoint = lastNewline > CHUNK_SIZE * 0.8 ? lastNewline : (lastPeriod > CHUNK_SIZE * 0.8 ? lastPeriod : chunk.length);
+          chunk = content.substring(start, start + breakPoint);
+          start += breakPoint - CHUNK_OVERLAP;
+        } else {
+          start = end;
+        }
+        
+        const trimmedChunk = chunk.trim();
+        if (trimmedChunk.length > 50) {
+          chunks.push(trimmedChunk);
+        }
+      }
+
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        const embeddingResponse = await openai.embeddings.create({
+          model: 'text-embedding-v3',
+          input: chunk.replace(/\n/g, ' '),
+        });
+        const vector = embeddingResponse.data[0].embedding;
+
+        await qdrant.upsert(COLLECTION_NAME, {
+          points: [
+            {
+              id: crypto.randomUUID(),
+              vector,
+              payload: {
+                content: chunk,
+                title,
+                url,
+                slug,
+                chunkIndex: i,
+              },
+            },
+          ],
+        });
+      }
+    }
+
+    console.log('RAG Ingestion completed!');
+    await pool.end();
+  } catch (error) {
+    console.error('Ingestion failed:', error);
+  }
 }
 
 main().catch(console.error);

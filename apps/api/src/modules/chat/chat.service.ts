@@ -95,8 +95,8 @@ export class ChatService implements OnModuleInit {
       where: { id: sessionId },
       include: {
         messages: {
-          orderBy: { createdAt: 'asc' },
-          take: 10, // 仅获取最近 10 条上下文
+          orderBy: { createdAt: 'desc' },
+          take: 6, // 仅获取最近 6 条上下文（3 轮对话）
         },
       },
     });
@@ -104,6 +104,9 @@ export class ChatService implements OnModuleInit {
     if (!session) {
       throw new Error('会话不存在');
     }
+
+    // 将 desc 排序转回 asc 保证对话顺序
+    session.messages.reverse();
 
     // 1. 尝试 RAG 检索
     const ragResults = await this.kbService.search(userMessage);
@@ -154,8 +157,8 @@ export class ChatService implements OnModuleInit {
       where: { id: sessionId },
       include: {
         messages: {
-          orderBy: { createdAt: 'asc' },
-          take: 10,
+          orderBy: { createdAt: 'desc' },
+          take: 6,
         },
       },
     });
@@ -163,6 +166,9 @@ export class ChatService implements OnModuleInit {
     if (!session) {
       throw new Error('会话不存在');
     }
+
+    // 将 desc 排序转回 asc 保证对话顺序
+    session.messages.reverse();
 
     // 1. 尝试 RAG 检索
     const ragResults = await this.kbService.search(userMessage);

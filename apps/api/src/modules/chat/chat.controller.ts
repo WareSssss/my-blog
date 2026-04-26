@@ -13,13 +13,14 @@ import {
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { Observable, from, map } from 'rxjs';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 
 @Controller('public/chat')
 @UseGuards(ThrottlerGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
+  @Throttle({ short: { limit: 1, ttl: 1000 }, long: { limit: 20, ttl: 60000 } })
   @Post('sessions')
   async createSession(
     @Body() body: { clientId?: string; model: string; title?: string },
@@ -68,6 +69,7 @@ export class ChatController {
     return this.chatService.callAI(sessionId, body.content);
   }
 
+  @Throttle({ short: { limit: 1, ttl: 5000 }, long: { limit: 30, ttl: 3600000 } })
   @Sse('sessions/:id/stream')
   async sendMessageStream(
     @Param('id') sessionId: string,
