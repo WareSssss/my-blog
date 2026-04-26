@@ -1,15 +1,11 @@
 import { defineConfig } from "prisma/config";
 
-// 确保在读取配置前加载 .env（仅限本地开发）
+// 生产环境由平台注入变量，本地开发环境手动加载
 if (process.env.NODE_ENV !== 'production') {
-  import("dotenv/config");
+  require('dotenv').config();
 }
 
 const databaseUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_NON_POOLING;
-
-if (!databaseUrl && process.env.NODE_ENV === 'production') {
-  console.warn('⚠️ WARNING: DATABASE_URL is not defined in environment variables!');
-}
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

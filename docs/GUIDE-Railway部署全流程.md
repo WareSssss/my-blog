@@ -29,11 +29,13 @@
 - **Root Directory**: 必须设置为 `apps/api`。
 - **Build Command**: 设置为：
   ```bash
-  npx prisma generate && npx prisma migrate deploy && npm run build
+  npx prisma generate && npm run build
   ```
-
-  *说明：Prisma 7 必须先执行 generate 才能进行 migrate。*
-- **Start Command**: 设置为 `npm run start:prod`。
+- **Start Command**: 设置为：
+  ```bash
+  npx prisma migrate deploy && node dist/src/main
+  ```
+  *注意：NestJS 在 Monorepo 下构建出的路径通常包含 src 目录。*
 
 ### 2.3 环境变量设置 (Variables)
 
@@ -41,7 +43,7 @@
 
 | 变量名 (Key)       | 值 (Value)                     | 说明                                |
 | :----------------- | :----------------------------- | :---------------------------------- |
-| `DATABASE_URL`   | `${{Postgres.DATABASE_URL}}` | **必须引用** 数据库服务的变量 |
+| `DATABASE_URL`   | `postgresql://...proxy.rlwy.net...` | **推荐** 使用带 proxy 的公网连接串以保证稳定性 |
 | `PORT`           | `3000`                       | NestJS 默认端口                     |
 | `ADMIN_TOKEN`    | `你的强密码字符串`           | 管理端鉴权使用                      |
 | `NODE_ENV`       | `production`                 | 生产环境标识                        |
@@ -78,9 +80,10 @@
 
 ## 5. 故障排查 (Troubleshooting)
 
-- **Error: The datasource.url property is required**:
-  - 检查 API 服务的 Variables 中 `DATABASE_URL` 是否填写正确。
-  - 检查 `prisma.config.ts` 是否在 `datasource` 块中配置了 `url` 属性。
+- **Error: P1001 (Can't reach database)**:
+  - **方案 A (推荐)**：检查 `DATABASE_URL` 引用。确保 `${{Postgres.DATABASE_URL}}` 中的 `Postgres` 与左侧数据库服务名完全一致。
+  - **方案 B (稳定)**：改用公网连接。进入数据库服务的 Variables，复制带 `proxy.rlwy.net` 的 `DATABASE_URL`，手动粘贴到 API 服务的变量中。
+  - **方案 C**：在 URL 末尾添加参数 `?connect_timeout=30` 延长等待时间。
 - **sh: 1: pnpm: not found**:
   - 请使用 `npm run build` 代替 `pnpm build`。Railway 默认环境对 `npm` 支持更稳定。
 - **CORS 报错**:
