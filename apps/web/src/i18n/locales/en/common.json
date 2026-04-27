@@ -1,0 +1,25 @@
+{
+  "nav": {
+    "home": "Home",
+    "blog": "Blog",
+    "tools": "Tools",
+    "ai": "AI Chat"
+  },
+  "common": {
+    "loading": "Loading...",
+    "views": "views",
+    "likes": "likes",
+    "readTime": "{{minutes}} min read",
+    "prev": "Prev",
+    "next": "Next",
+    "locating": "Locating...",
+    "unauthorized": "Unauthorized",
+    "locationFailed": "Location Failed",
+    "getWeather": "Get Weather"
+  },
+  "blog": {
+    "latest": "Latest Posts",
+    "noPosts": "No posts found",
+    "featured": "Featured"
+  }
+}

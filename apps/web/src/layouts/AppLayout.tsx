@@ -1,15 +1,9 @@
-import { Bell, Github, MapPin, Moon, Sun } from "lucide-react";
+import { Bell, Github, Languages, MapPin, Moon, Sun } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { getWeather, type PublicWeatherResponse } from "../services/api/public";
-
-const navItems = [
-  { label: "首页", to: "/" },
-  { label: "博客", to: "/blog" },
-  { label: "开发工具", to: "/tools" },
-  { label: "AI 聊天", to: "/ai" }
-];
 
 function readWeatherCache(): PublicWeatherResponse | null {
   if (typeof window === "undefined") return null;
@@ -43,8 +37,17 @@ function useIsDark(): [boolean, (next: boolean) => void] {
 }
 
 export function AppLayout() {
+  const { t, i18n } = useTranslation();
   const [isDark, setIsDark] = useIsDark();
   const location = useLocation();
+
+  const navItems = useMemo(() => [
+    { label: t("nav.home"), to: "/" },
+    { label: t("nav.blog"), to: "/blog" },
+    { label: t("nav.tools"), to: "/tools" },
+    { label: t("nav.ai"), to: "/ai" }
+  ], [t]);
+
   const [weather, setWeather] = useState<PublicWeatherResponse | null>(() => readWeatherCache());
   const [weatherError, setWeatherError] = useState<string | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
@@ -93,10 +96,10 @@ export function AppLayout() {
       (err) => {
         setWeatherLoading(false);
         if (err.code === err.PERMISSION_DENIED) {
-          setWeatherError("未授权定位");
+          setWeatherError(t("common.unauthorized"));
           return;
         }
-        setWeatherError("定位失败");
+        setWeatherError(t("common.locationFailed"));
       },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 }
     );
@@ -107,7 +110,7 @@ export function AppLayout() {
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <div className="text-sm font-semibold tracking-wide text-slate-900 dark:text-slate-100">扶桑</div>
+            <div className="text-sm font-semibold tracking-wide text-slate-900 dark:text-slate-100">Wares.ai</div>
             <nav className="flex items-center gap-2 text-sm">
               {navItems.map((item) => (
                 <NavLink
@@ -134,13 +137,13 @@ export function AppLayout() {
               <div className="hidden h-9 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 sm:inline-flex dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
                 <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                 {weatherLoading ? (
-                  <span className="text-sm">定位中...</span>
+                  <span className="text-sm">{t("common.locating")}</span>
                 ) : weather?.current ? (
                   <span className="text-sm">
                     {weather.city} {weather.current.text} {Math.round(weather.current.temperatureC)}°C
                   </span>
                 ) : (
-                  <span className="text-sm">{weatherError ?? "获取天气"}</span>
+                  <span className="text-sm">{weatherError ?? t("common.getWeather")}</span>
                 )}
               </div>
             ) : null}
@@ -154,6 +157,16 @@ export function AppLayout() {
               <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-none text-white">
                 2
               </span>
+            </button>
+
+            <button
+              type="button"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+              aria-label="切换语言"
+              title="切换语言 / Switch Language"
+              onClick={() => i18n.changeLanguage(i18n.language === "zh" ? "en" : "zh")}
+            >
+              <Languages className="h-4 w-4" />
             </button>
 
             <button

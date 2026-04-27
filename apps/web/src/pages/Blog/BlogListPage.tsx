@@ -2,8 +2,10 @@ import { Eye, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getCategories, getPosts, type PublicCategory, type PublicPostListItem } from "../../services/api/public";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export function BlogListPage() {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState<PublicCategory[]>([]);
   const [posts, setPosts] = useState<PublicPostListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,18 +46,18 @@ export function BlogListPage() {
   return (
     <div className="pb-12">
       <div className="mb-8">
-        <div className="text-3xl font-semibold tracking-tight text-slate-900">博客</div>
+        <div className="text-3xl font-semibold tracking-tight text-slate-900">{t("nav.blog")}</div>
         <div className="mt-2 text-sm text-slate-500">
           {categories.length > 0
             ? categories.map((c) => c.name).join("、")
-            : "技术文章、学习笔记和项目分享"}
+            : t("blog.latest")}
         </div>
       </div>
 
       <div className="flex flex-col gap-10">
         {loading ? (
           <div className="flex h-64 items-center justify-center text-slate-400">
-            正在加载文章...
+            {t("common.loading")}
           </div>
         ) : posts.length > 0 ? (
           <>
@@ -74,7 +76,7 @@ export function BlogListPage() {
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-slate-50 text-slate-400">
-                      无封面图
+                      {t("blog.noPosts")}
                     </div>
                   )}
                 </div>
@@ -104,6 +106,7 @@ export function BlogListPage() {
                     <span className="flex items-center gap-1">
                       <Heart className="h-4 w-4" /> {posts[0].likes}
                     </span>
+                    <span>{t("common.readTime", { minutes: posts[0].readTimeMinutes })}</span>
                   </div>
                 </div>
               </Link>
@@ -126,7 +129,7 @@ export function BlogListPage() {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-slate-50 text-slate-400">
-                        无封面图
+                        {t("blog.noPosts")}
                       </div>
                     )}
                   </div>
@@ -210,7 +213,7 @@ export function BlogListPage() {
           </>
         ) : (
           <div className="flex h-64 items-center justify-center text-slate-400">
-            暂无文章
+            {t("blog.noPosts")}
           </div>
         )}
       </div>

@@ -13,9 +13,12 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "highlight.js": "^11.11.1",
+    "i18next": "^26.0.8",
+    "i18next-browser-languagedetector": "^8.2.1",
     "lucide-react": "^0.515.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-i18next": "^17.0.4",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.9.3",
     "rehype-highlight": "^7.0.2",
