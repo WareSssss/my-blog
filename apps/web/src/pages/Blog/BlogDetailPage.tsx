@@ -61,38 +61,49 @@ export function BlogDetailPage() {
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_260px]">
-      <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="text-xs text-slate-500">{metaText}</div>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{post.title}</h1>
+      <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        {post.coverUrl && (
+          <div className="aspect-[21/9] w-full overflow-hidden">
+            <img
+              src={post.coverUrl}
+              alt={post.title}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        )}
+        <div className="p-6">
+          <div className="text-xs text-slate-500">{metaText}</div>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{post.title}</h1>
 
-        <div className="mt-3 flex flex-wrap gap-2">
-          {post.tags.map((t) => (
-            <span
-              key={t.slug}
-              className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-700"
-            >
-              {t.name}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {post.tags.map((t) => (
+              <span
+                key={t.slug}
+                className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-700"
+              >
+                {t.name}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
+            <span className="inline-flex items-center gap-1">
+              <Eye className="h-3.5 w-3.5" />
+              {post.views}
             </span>
-          ))}
-        </div>
+            <span className="inline-flex items-center gap-1">
+              <Heart className="h-3.5 w-3.5" />
+              {post.likes}
+            </span>
+          </div>
 
-        <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
-          <span className="inline-flex items-center gap-1">
-            <Eye className="h-3.5 w-3.5" />
-            {post.views}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Heart className="h-3.5 w-3.5" />
-            {post.likes}
-          </span>
-        </div>
+          <div className="mt-6 markdown" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
 
-        <div className="mt-6 markdown" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
-
-        <div className="mt-8">
-          <Link className="text-sm text-blue-600 underline" to="/blog">
-            返回博客列表
-          </Link>
+          <div className="mt-8">
+            <Link className="text-sm text-blue-600 underline" to="/blog">
+              返回博客列表
+            </Link>
+          </div>
         </div>
       </article>
 

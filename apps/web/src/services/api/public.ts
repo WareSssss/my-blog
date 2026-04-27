@@ -57,6 +57,7 @@ export type PublicPostListItem = {
   slug: string;
   title: string;
   excerpt: string | null;
+  coverUrl: string | null;
   category: { name: string; slug: string } | null;
   tags: { name: string; slug: string }[];
   publishedAt: string | null;
