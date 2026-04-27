@@ -56,7 +56,12 @@ export function deleteChatSession(sessionId: string) {
 
 export async function* sendChatMessageStream(sessionId: string, content: string, signal?: AbortSignal) {
   const url = `${import.meta.env.VITE_API_BASE_URL || ''}/api/public/chat/sessions/${sessionId}/stream?content=${encodeURIComponent(content)}`;
-  const response = await fetch(url, { signal });
+  const response = await fetch(url, { 
+    signal,
+    headers: {
+      'Accept': 'text/event-stream',
+    },
+  });
   
   if (!response.ok) {
     throw new Error('流式请求失败');

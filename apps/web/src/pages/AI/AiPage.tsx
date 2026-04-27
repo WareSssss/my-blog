@@ -70,6 +70,34 @@ function getClientId() {
   return id;
 }
 
+function RtpStatus({ content }: { content: string }) {
+  const isNotification = content.includes('[RTP:NOTIFICATION]');
+  const isResult = content.includes('[RTP:RESULT]');
+  
+  if (!isNotification && !isResult) return null;
+
+  const text = content
+    .replace(/\[RTP:NOTIFICATION\]/g, '')
+    .replace(/\[RTP:RESULT\]/g, '')
+    .trim();
+
+  return (
+    <div className={clsx(
+      "flex items-center gap-2 px-3 py-2 my-2 rounded-lg border text-sm transition-all animate-in fade-in slide-in-from-top-1",
+      isNotification 
+        ? "bg-blue-50 border-blue-100 text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400"
+        : "bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400"
+    )}>
+      {isNotification ? (
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      ) : (
+        <Check className="h-3.5 w-3.5" />
+      )}
+      <span>{text}</span>
+    </div>
+  );
+}
+
 export function AiPage() {
   const [aiConfig, setAiConfig] = useState<PublicAiConfig | null>(null);
   const clientId = useMemo(() => getClientId(), []);
@@ -83,6 +111,7 @@ export function AiPage() {
   const [model, setModel] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const isCreatingSessionRef = useRef(false);
 
   // 配置与模型列表
   const models = useMemo(
@@ -122,6 +151,13 @@ export function AiPage() {
   useEffect(() => {
     if (currentSessionId) {
       localStorage.setItem("last_chat_session_id", currentSessionId);
+      
+      // 如果是正在创建新会话，跳过此处的自动加载，避免竞态条件覆盖正在流式传输的消息
+      if (isCreatingSessionRef.current) {
+        isCreatingSessionRef.current = false;
+        return;
+      }
+
       getChatMessages(currentSessionId).then(setMessages).catch(console.error);
     } else {
       setMessages([]);
@@ -149,14 +185,20 @@ export function AiPage() {
     try {
       // 1. 如果没有会话，先创建一个
       if (!sessionId) {
+        isCreatingSessionRef.current = true;
         const newSession = await createChatSession({
           clientId,
           model: model || models[0].id,
           title: content.substring(0, 15),
         });
         sessionId = newSession.id;
-        setCurrentSessionId(sessionId);
+        
+        // 先更新会话列表和当前会话 ID
         setSessions([newSession, ...sessions]);
+        setCurrentSessionId(sessionId);
+        
+        // 给 React 一点时间来处理状态更新和 re-render
+        await new Promise(resolve => setTimeout(resolve, 0));
       }
 
       // 2. 乐观更新本地 UI
@@ -326,6 +368,11 @@ export function AiPage() {
                       <div className="whitespace-pre-wrap">{m.content}</div>
                     ) : (
                       <div className="markdown">
+                        {/* 渲染 RTP 状态 */}
+                        {m.content.split('\n').map((line, idx) => (
+                          <RtpStatus key={idx} content={line} />
+                        ))}
+
                         <ReactMarkdown 
                           remarkPlugins={[remarkGfm]}
                           rehypePlugins={[rehypeHighlight]}
@@ -333,7 +380,10 @@ export function AiPage() {
                             pre: CodeBlock
                           }}
                         >
-                          {m.content.replace(/\[source:\s*([^\]]+)\]/g, '')}
+                          {m.content
+                            .replace(/\[RTP:NOTIFICATION\].*?\n/g, '')
+                            .replace(/\[RTP:RESULT\].*?\n/g, '')
+                            .replace(/\[source:\s*([^\]]+)\]/g, '')}
                         </ReactMarkdown>
                         
                         {/* 渲染来源卡片 */}

@@ -71,21 +71,16 @@ export class ChatController {
 
   @Throttle({ short: { limit: 1, ttl: 5000 }, long: { limit: 30, ttl: 3600000 } })
   @Sse('sessions/:id/stream')
-  async sendMessageStream(
+  sendMessageStream(
     @Param('id') sessionId: string,
     @Query('content') content: string,
-  ): Promise<Observable<MessageEvent>> {
+  ): Observable<MessageEvent> {
     if (!content) {
       throw new BadRequestException('内容不能为空');
     }
 
-    // 1. 保存用户消息
-    await this.chatService.sendMessage(sessionId, 'user', content);
-
-    // 2. 调用 AI 响应（流式）
-    const generator = this.chatService.callAIStream(sessionId, content);
-
-    return from(generator).pipe(
+    // 将异步逻辑移入 Observable 内部，确保 SSE 连接能尽快建立
+    return from(this.chatService.callAIStream(sessionId, content)).pipe(
       map((chunk) => ({
         data: { content: chunk },
       })),
