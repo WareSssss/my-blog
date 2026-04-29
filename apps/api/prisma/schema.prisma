@@ -77,6 +77,10 @@ model Post {
   coverUrl    String?    @map("cover_url")
   readTimeMinutes Int?   @map("read_time_minutes")
   contentMarkdown String? @db.Text @map("content_markdown")
+  originalUrl String?    @unique @map("original_url")
+  canonicalUrl String?   @map("canonical_url")
+  externalId  String?    @map("external_id")
+  platform    String?
   categoryId  String?    @db.Uuid @map("category_id")
   status      PostStatus @default(draft)
   sourceType  String     @default("markdown_file") @map("source_type")

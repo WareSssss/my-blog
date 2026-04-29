@@ -129,7 +129,8 @@ export class CrawlerService {
           platform: dto.platform,
           canonicalUrl: dto.canonicalUrl,
           sourceType: 'crawler',
-          status: 'draft',
+          status: 'published',
+          publishedAt: dto.publishDate ?? new Date(),
           // 标签处理：M2 阶段暂不处理复杂的 PostTag 关联，仅作为后续扩展
         },
       });
