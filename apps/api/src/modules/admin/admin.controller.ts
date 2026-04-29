@@ -9,10 +9,11 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { AdminTokenGuard } from '../../common/guards/admin-token.guard';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import { AdminTokenGuard } from '../../common/guards/admin-token.guard.js';
 import { ToolStatus } from '@prisma/client';
-import { KbService } from '../kb/kb.service';
+import { KbService } from '../kb/kb.service.js';
+import { CrawlerService } from '../crawler/crawler.service.js';
 
 @UseGuards(AdminTokenGuard)
 @Controller('admin')
@@ -20,7 +21,13 @@ export class AdminController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly kbService: KbService,
+    private readonly crawlerService: CrawlerService,
   ) {}
+
+  @Post('crawler/run')
+  async runCrawler() {
+    return this.crawlerService.runDailyCrawl();
+  }
 
   @Get('site-settings')
   async listSiteSettings() {

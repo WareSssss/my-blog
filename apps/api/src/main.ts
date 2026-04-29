@@ -1,9 +1,11 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
     origin: [
       /^http:\/\/localhost:5173$/,
@@ -21,6 +23,9 @@ async function bootstrap() {
     credentials: true,
   });
   app.setGlobalPrefix('api');
+  app.useStaticAssets(join(process.cwd(), 'public'), {
+    prefix: '/public/',
+  });
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();

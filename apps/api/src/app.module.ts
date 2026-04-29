@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AdminModule } from './modules/admin/admin.module';
-import { PublicModule } from './modules/public/public.module';
-import { ToolsModule } from './modules/tools/tools.module';
-import { ChatModule } from './modules/chat/chat.module';
-import { PrismaModule } from './prisma/prisma.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
+import { AdminModule } from './modules/admin/admin.module.js';
+import { PublicModule } from './modules/public/public.module.js';
+import { ToolsModule } from './modules/tools/tools.module.js';
+import { ChatModule } from './modules/chat/chat.module.js';
+import { PrismaModule } from './prisma/prisma.module.js';
+import { CrawlerModule } from './modules/crawler/crawler.module.js';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { PrismaModule } from './prisma/prisma.module';
     AdminModule,
     ToolsModule,
     ChatModule,
+    CrawlerModule,
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([
       {
         name: 'short',
