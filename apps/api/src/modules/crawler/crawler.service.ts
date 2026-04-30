@@ -116,7 +116,7 @@ export class CrawlerService {
         slug = `${slug}-${dto.externalId}`;
       }
 
-      // 3. 写入数据库 (默认为 draft 状态)
+      // 3. 写入数据库 (默认为 published 状态，并关联“技术文章”分类)
       await (this.prisma.post as any).create({
         data: {
           title: dto.title,
@@ -131,7 +131,8 @@ export class CrawlerService {
           sourceType: 'crawler',
           status: 'published',
           publishedAt: dto.publishDate ?? new Date(),
-          // 标签处理：M2 阶段暂不处理复杂的 PostTag 关联，仅作为后续扩展
+          // 默认关联到“技术文章”分类 (id: f8d1fafa-04ff-475b-9800-41285adc4eca)
+          categoryId: 'f8d1fafa-04ff-475b-9800-41285adc4eca',
         },
       });
 

@@ -29,6 +29,20 @@ export class AdminController {
     return this.crawlerService.runDailyCrawl();
   }
 
+  @Post('posts/bulk-assign-category')
+  async bulkAssignCategory(
+    @Body() body: { categoryId: string; sourceType?: string },
+  ) {
+    const { categoryId, sourceType = 'crawler' } = body;
+    if (!categoryId) {
+      throw new BadRequestException('categoryId is required');
+    }
+    return this.prisma.post.updateMany({
+      where: { sourceType },
+      data: { categoryId },
+    });
+  }
+
   @Get('site-settings')
   async listSiteSettings() {
     return this.prisma.siteSetting.findMany({
