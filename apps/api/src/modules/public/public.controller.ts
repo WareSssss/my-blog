@@ -73,6 +73,15 @@ export class PublicController {
     return setting?.value ?? null;
   }
 
+  @Get('debug/stats')
+  async getStats() {
+    const counts = await this.prisma.post.groupBy({
+      by: ['status', 'sourceType', 'categoryId'],
+      _count: true,
+    });
+    return counts;
+  }
+
   @Get('categories')
   async getCategories() {
     const categories = await this.prisma.category.findMany({
