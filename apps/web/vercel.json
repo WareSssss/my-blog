@@ -1,5 +1,9 @@
 {
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://wonderful-spontaneity-production-3251.up.railway.app/api/$1"
+    },
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
   ]
