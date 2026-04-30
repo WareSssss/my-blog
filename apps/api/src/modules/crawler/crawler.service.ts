@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { JuejinStrategy } from './strategies/juejin.strategy.js';
@@ -10,7 +10,7 @@ import { TurndownHelper } from './transformers/turndown.helper.js';
 import { OssUploaderService } from './transformers/oss-uploader.service.js';
 
 @Injectable()
-export class CrawlerService {
+export class CrawlerService implements OnModuleInit {
   private readonly logger = new Logger(CrawlerService.name);
   private readonly slugger = new GithubSlugger();
   private readonly strategies: BaseStrategy[];
@@ -23,6 +23,27 @@ export class CrawlerService {
     private readonly ossUploader: OssUploaderService,
   ) {
     this.strategies = [this.juejinStrategy];
+  }
+
+  async onModuleInit() {
+    this.logger.log('Initializing CrawlerService and running self-healing...');
+    try {
+      const result = await this.prisma.post.updateMany({
+        where: {
+          sourceType: 'crawler',
+          categoryId: null,
+        },
+        data: {
+          categoryId: 'f8d1fafa-04ff-475b-9800-41285adc4eca',
+          status: 'published',
+        },
+      });
+      if (result.count > 0) {
+        this.logger.log(`Self-healing: Updated ${result.count} crawler posts with missing category.`);
+      }
+    } catch (error) {
+      this.logger.error(`Self-healing failed: ${error.message}`);
+    }
   }
 
   /**
