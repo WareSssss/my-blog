@@ -3,6 +3,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  Post,
   Query,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -195,10 +196,24 @@ export class PublicController {
       throw new NotFoundException('post not found');
     }
 
+    // 异步增加阅读量，不阻塞主流程
+    void this.prisma.postStats
+      .upsert({
+        where: { postId: post.id },
+        create: { postId: post.id, views: BigInt(1), likes: BigInt(0) },
+        update: { views: { increment: BigInt(1) } },
+      })
+      .catch((err) => console.error('Failed to increment views:', err));
+
     const markdown = post.contentMarkdown ?? '';
+    if (!markdown && post.sourceType === 'crawler') {
+      // 如果是爬虫文章但内容为空，可以在此记录或返回特定提示
+      console.warn(`Post ${post.id} has empty contentMarkdown`);
+    }
+
     const rendered = markdown
       ? await renderMarkdown(markdown)
-      : { html: '', toc: [] };
+      : { html: '<p class="text-slate-400 italic">文章内容正在同步中...</p>', toc: [] };
 
     return {
       id: post.id,
@@ -207,15 +222,25 @@ export class PublicController {
       excerpt: post.excerpt,
       coverUrl: post.coverUrl,
       category: post.category,
-      tags: post.tags.map((t) => t.tag),
+      tags: post.tags?.map((t) => t.tag) ?? [],
       publishedAt: post.publishedAt,
       readTimeMinutes: post.readTimeMinutes,
-      views: post.stats ? Number(post.stats.views) : 0,
+      views: post.stats ? Number(post.stats.views) + 1 : 1, // 当前这次访问也算进去
       likes: post.stats ? Number(post.stats.likes) : 0,
       contentMarkdown: markdown,
       contentHtml: rendered.html,
       toc: rendered.toc,
     };
+  }
+
+  @Post('posts/:id/like')
+  async likePost(@Param('id') id: string) {
+    const stats = await this.prisma.postStats.upsert({
+      where: { postId: id },
+      create: { postId: id, views: BigInt(0), likes: BigInt(1) },
+      update: { likes: { increment: BigInt(1) } },
+    });
+    return { likes: Number(stats.likes) };
   }
 
   @Get('weather')

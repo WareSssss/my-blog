@@ -62,3 +62,9 @@
 1. **通知助手**：在聊天窗口告知“API 已就绪”。
 2. **手动抓取**：助手将协助触发掘金文章抓取任务。
 3. **最终检查**：访问 [www.waresblog.xyz](https://www.waresblog.xyz/) 确认内容已更新。
+
+---
+
+## 常用地址备忘
+- **后端 API 根地址**: `https://friendly-commitment-production-ed9c.up.railway.app`
+- **验证链接**: `https://friendly-commitment-production-ed9c.up.railway.app/api/public/categories`

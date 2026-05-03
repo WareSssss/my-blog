@@ -1,4 +1,4 @@
-import { apiGet } from './http';
+import { apiGet, apiPost } from './http';
 
 export type PublicProfile = {
   name?: string;
@@ -113,7 +113,11 @@ export function getPosts(params?: { category?: string; tag?: string; q?: string;
 }
 
 export function getPostDetail(slug: string) {
-  return apiGet<PublicPostDetailResponse>(`/api/public/posts/${encodeURIComponent(slug)}`);
+  return apiGet<PublicPostDetailResponse>(`/api/public/posts/${slug}`);
+}
+
+export function likePost(id: string) {
+  return apiPost<{ likes: number }>(`/api/public/posts/${id}/like`);
 }
 
 export function getWeather(params: { lat: number; lon: number }) {
